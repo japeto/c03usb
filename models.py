@@ -79,3 +79,30 @@ class Product(db.Model):
           'price': self.product_price,
           'availability': self.availability,
         }
+    
+
+class Detalles(db.Model):
+    __tablename__ = 'detalles'
+    id = db.Column(db.Integer, primary_key=True)
+    id_orden = db.Column(db.Integer, db.ForeignKey('ordenes.id'), nullable=False)
+    id_producto = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    cantidad = db.Column(db.Integer)
+    valor = db.Column(db.Float)
+
+    def __init__(self, id_orden, id_producto, cantidad, valor):
+        self.id_orden = id_orden
+        self.id_producto = id_producto
+        self.cantidad = cantidad
+        self.valor = valor
+
+    def __repr__(self):
+        return '<Detalles %r>' % self.id
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'id_orden': self.id_orden,
+            'id_producto': self.id_producto,
+            'cantidad': self.cantidad,
+            'valor': self.valor,
+        }
