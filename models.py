@@ -33,7 +33,7 @@ class Orders(db.Model):
 
     id = db.Column(db.Integer,primary_key=True)
     order_date = db.Column(db.DateTime)
-    client_id = db.Column(db.Integer,db.ForengKey('clients.id'),nullable=False)
+    client_id = db.Column(db.Integer,db.ForeignKey('clients.id'),nullable=False)
     client = relationship("Client", foreign_keys=[client_id])
 
     def __init__ (self,date,client_id):
