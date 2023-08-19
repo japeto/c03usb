@@ -77,6 +77,14 @@ def crear_orden():
     db.session.commit()
     return jsonify({'message': 'Orden creada exitosamente'}), 201
 
+#Ver orden por ID
+@app.route('/ordenes/<int:orden_id>', methods=['GET'])
+def obtener_orden(orden_id):
+    orden = Orden.query.get(orden_id)
+    if orden:
+        return jsonify(orden.serialize()), 200
+    return jsonify({'message': 'Orden no encontrada'}), 404
+
 #Eliminar orden por ID
 @app.route('/ordenes/<int:orden_id>', methods=['DELETE'])
 def eliminar_orden(orden_id):
@@ -151,7 +159,8 @@ def delete_product_by_id(product_id):
         return jsonify({'message': 'Product deleted'}), 200
     else:
         return jsonify({'message': 'Product not found'}), 404
-    
+
+#Crear nuevo producto    
 @app.route("/product", methods=['POST'])
 def newproduct():
     data = request.json
