@@ -65,22 +65,22 @@ def obtener_cliente(cliente_id):
         return jsonify(cliente.serialize()), 200
     return jsonify({'message': 'Cliente no encontrado'}), 404
 
-#Crear nueva orden
-@app.route('/ordenes', methods=['POST'])
-def crear_orden():
-    data = request.json
-    cliente_existente = Cliente.query.get(data['cliente_id'])
-    if not cliente_existente:
-        return jsonify({'message': 'Cliente no encontrado'}), 404
-    nueva_orden = Ordenes(fecha=data['fecha'], total=data['total'], cliente=cliente_existente)
-    db.session.add(nueva_orden)
-    db.session.commit()
-    return jsonify({'message': 'Orden creada exitosamente'}), 201
+  #Crear nueva orden
+  @app.route('/ordenes', methods=['POST'])
+  def crear_orden():
+      data = request.json
+      cliente_existente = Cliente.query.get(data['cliente_id'])
+      if not cliente_existente:
+          return jsonify({'message': 'Cliente no encontrado'}), 404
+      nueva_orden = Ordenes(fecha=data['fecha'], total=data['total'], cliente=cliente_existente)
+      db.session.add(nueva_orden)
+      db.session.commit()
+      return jsonify({'message': 'Orden creada exitosamente'}), 201
 
 #Ver orden por ID
 @app.route('/ordenes/<int:orden_id>', methods=['GET'])
 def obtener_orden(orden_id):
-    orden = Orden.query.get(orden_id)
+    orden = Ordenes.query.get(orden_id)
     if orden:
         return jsonify(orden.serialize()), 200
     return jsonify({'message': 'Orden no encontrada'}), 404
