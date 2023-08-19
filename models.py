@@ -5,17 +5,50 @@ from sqlalchemy.orm import relationship
 db = SQLAlchemy()
 
 class Client(db.Model):
-    __tablename__ = 'clients'
+    __tablename__ = "clients"   
 
-    id = db.Column(db.Integer, primary_key=True)
-    client_name = db.Column(db.String(100), nullable=False)
+    id = db.Column(db.Integer,primary_key=True)
+    client_name = db.Column(db.String(100),unique=True)
+    client_email = db.Column(db.String(100),unique=True)
+    client_address = db.Column(db.String(100),unique=True)
+
+    def __init__ (self,name,email,address):
+        self.client_name = name
+        self.client_email = email
+        self.client_address = address
+
+    def __repr__(self):
+        return '<Client %r, %r>' % self.id, self.client_name
+
+    def serialize(self):
+        return {
+            'client_id' :   self.id,
+            'client_name' : self.client_name,
+            'client_email' :self.client_email,
+            'client_address' : self.client_address,
+        }
 
 class Orders(db.Model):
-    __tablename__ = 'orders'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
+    __tablename__ = "orders"
+
+    id = db.Column(db.Integer,primary_key=True)
+    order_date = db.Column(db.DateTime)
+    client_id = db.Column(db.Integer,db.ForengKey('clients.id'),nullable=False)
     client = relationship("Client", foreign_keys=[client_id])
+
+    def __init__ (self,date,client_id):
+        self.order_date = date
+        self.client_id = client_id
+
+    def __repr__(self):
+        return '<Orders %r, %r, %r>' % self.id, self.order_date, self.client_id
+
+    def serialize(self):
+        return {
+            'Order_id' :   self.id,
+            'Order_date' : self.order_date,
+            'client_id' :self.client_id,
+        }
 
 class Product(db.Model):
     __tablename__ = 'products'
