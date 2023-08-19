@@ -24,6 +24,8 @@ def pong():
         "message":"pong"
     }), 200
 
+
+
 @app.route("/products", methods=['POST'])
 def new_product():
     data = request.json
@@ -71,6 +73,5 @@ def delete_product(id):
    a_product.availability = 0
    db.session.commit()
    return jsonify(a_product.serialize())
-
 
 app.run(host="0.0.0.0", debug=True, port=9030)
