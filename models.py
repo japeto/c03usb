@@ -4,18 +4,54 @@ from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
-class Client(db.Model):
-    __tablename__ = 'clients'
 
+
+class Cliente(db.Model):
+    __tablename__ = 'cliente'
     id = db.Column(db.Integer, primary_key=True)
-    client_name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(255))
+    correo = db.Column(db.String(255))
+    direccion = db.Column(db.Text)
 
-class Orders(db.Model):
-    __tablename__ = 'orders'
+    def __init__(self, name, correo, direccion):
+        self.name = name
+        self.correo = correo
+        self.direccion = direccion
+
+    def __repr__(self):
+        return '<Cliente %r>' % self.name
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'correo': self.correo,
+            'direccion': self.direccion,
+        }
     
+
+
+class Ordenes(db.Model):
+    __tablename__ = 'ordenes'
     id = db.Column(db.Integer, primary_key=True)
-    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
-    client = relationship("Client", foreign_keys=[client_id])
+    fecha = db.Column(db.Date)
+    id_cliente = db.Column(db.Integer, db.ForeignKey('cliente.id'))
+
+    def __init__(self, fecha, id_cliente):
+        self.fecha = fecha
+        self.id_cliente = id_cliente
+
+    def __repr__(self):
+        return '<Ordenes %r>' % self.id
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'fecha': self.fecha,
+            'id_cliente': self.id_cliente,
+        }
+    
+
 
 class Product(db.Model):
     __tablename__ = 'products'
