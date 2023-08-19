@@ -1,6 +1,21 @@
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
+
 db = SQLAlchemy()
+
+class Client(db.Model):
+    __tablename__ = 'clients'
+
+    id = db.Column(db.Integer, primary_key=True)
+    client_name = db.Column(db.String(100), nullable=False)
+
+class Orders(db.Model):
+    __tablename__ = 'orders'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'), nullable=False)
+    client = relationship("Client", foreign_keys=[client_id])
 
 class Product(db.Model):
     __tablename__ = 'products'
@@ -22,8 +37,9 @@ class Product(db.Model):
     
     def serialize(self):
         return {
-          'product_name': self.product_name,
-          'product_description': self.product_description,
-          'product_price': self.product_price,
+          'id': self.id,
+          'name': self.product_name,
+          'description': self.product_description,
+          'price': self.product_price,
           'availability': self.availability,
         }
