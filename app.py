@@ -24,8 +24,6 @@ def pong():
         "message":"pong"
     }), 200
 
-
-
 @app.route("/products", methods=['POST'])
 def new_product():
     data = request.json
@@ -46,12 +44,12 @@ def new_product():
 def products():
    return jsonify([
       a_product.serialize() for a_product in Product.query.all()
-   ])
+   ]), 200
 
 @app.route("/products/<int:id>", methods=['GET'])
 def get_product(id):
    a_product = Product.query.get_or_404(id)
-   return jsonify(a_product.serialize())
+   return jsonify(a_product.serialize()), 200
 
 @app.route("/products/<int:id>", methods=['PUT'])
 def edit_product(id):
@@ -63,7 +61,7 @@ def edit_product(id):
       a_product.product_price = data['price']
       a_product.availability = data['availability']
       db.session.commit()
-      return jsonify(a_product.serialize())
+      return jsonify(a_product.serialize()), 204
    except Exception as ex:
       return jsonify({"message": str(ex)}), 400
 
@@ -72,6 +70,6 @@ def delete_product(id):
    a_product = Product.query.get_or_404(id)
    a_product.availability = 0
    db.session.commit()
-   return jsonify(a_product.serialize())
+   return jsonify(a_product.serialize()), 200
 
 app.run(host="0.0.0.0", debug=True, port=9030)
