@@ -18,11 +18,58 @@ CORS(app)
 with app.app_context():
    db.create_all()
 
-@app.route("/ping", methods=['GET'])
-def pong():
-    return jsonify({
-        "message":"pong"
-    }), 200
+
+# Ver todos los productos (GET)
+@app.route('/products', methods=['GET'])
+def get_all_products():
+    products = Product.query.all()
+    serialized_products = [product.serialize() for product in products]
+    return jsonify(serialized_products), 200
+
+
+# Ver un producto por su id (GET)
+@app.route('/product/<int:product_id>', methods=['GET'])
+def get_product_by_id(product_id):
+    product = Product.query.get(product_id)
+    if product:
+        serialized_product = product.serialize()
+        return jsonify(serialized_product), 200
+    else:
+        return jsonify({'message': 'Product not found'}), 404
+
+
+# Editar un producto por su id (PUT)
+@app.route('/product/<int:product_id>', methods=['PUT'])
+def edit_product_by_id(product_id):
+    data = request.json
+    try:
+        product_to_edit = Product.query.get(product_id)
+        if product_to_edit:
+            product_to_edit.product_name = data.get('name', product_to_edit.product_name)
+            product_to_edit.product_description = data.get('description', product_to_edit.product_description)
+            product_to_edit.product_price = data.get('price', product_to_edit.product_price)
+            product_to_edit.availability = data.get('availability', product_to_edit.availability)
+            db.session.commit()
+            return jsonify({'message': 'success'}), 200
+        else:
+            return jsonify({'message': 'Product not found'}), 404
+    except Exception as ex:
+        return jsonify({'message': str(ex)}), 400
+
+
+# Borrar un producto por su id (DELETE)
+@app.route('/product/<int:product_id>', methods=['DELETE'])
+def delete_product_by_id(product_id):
+    product_to_delete = Product.query.get(product_id)
+    if product_to_delete:
+        db.session.delete(product_to_delete)
+        db.session.commit()
+        return jsonify({'message': 'Product deleted'}), 200
+    else:
+        return jsonify({'message': 'Product not found'}), 404
+    
+    
+
 
 @app.route("/product", methods=['POST'])
 def newproduct():
