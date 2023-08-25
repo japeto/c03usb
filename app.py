@@ -1,9 +1,13 @@
 
 import os
-from flask import Flask, request, jsonify
 from flask_cors import CORS
 app = Flask(__name__)
-from models import db, Product, Cliente, Ordenes
+from models import db, Product, Cliente, Ordenes, User
+from flask import Flask, request, jsonify, g
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
+from functools import wraps
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -17,6 +21,55 @@ CORS(app)
 
 with app.app_context():
    db.create_all()
+
+app.config['JWT_SECRET_KEY'] = 'clave-123' 
+jwt = JWTManager(app)
+
+
+# Ruta para el registro de usuarios
+@app.route('/register', methods=['POST'])
+def register_user():
+    data = request.json
+    new_user = User(username=data['username'], password=data['password'])
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'message': 'Usuario registrado exitosamente'}), 201
+
+# Ruta para el inicio de sesión
+@app.route('/login', methods=['POST'])
+def login_user():
+    data = request.json
+    user = User.query.filter_by(username=data['username']).first()
+    if user and user.password == data['password']:
+        access_token = create_access_token(identity=user.username)
+        return jsonify({'access_token': access_token}), 200
+    else:
+        return jsonify({'message': 'Credenciales inválidas'}), 401
+
+# Middleware para obtener el usuario actualmente autenticado
+@app.before_request
+def before_request():
+    g.user = get_jwt_identity()
+
+# Middleware para autorización
+def authorize(roles):
+    def decorator(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            if g.user:
+                user = User.query.filter_by(username=g.user).first()
+                if user and user.role in roles:
+                    return fn(*args, **kwargs)
+            return jsonify({'message': 'Acceso no autorizado'}), 403
+        return wrapper
+    return decorator
+
+# Ejemplo de ruta protegida (requiere autenticación y autorización)
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+@authorize(roles=['admin', 'user'])
+def protected_route():
+    return jsonify({'message': 'Ruta protegida'}), 200
 
 #Ver todos los clientes
 @app.route('/clientes', methods=['GET'])
