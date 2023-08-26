@@ -8,9 +8,9 @@ services:
     expose: 
       - 5432
     ports:
-      -"5432:5432"
+      - "5432:5432"
     networks:
-      - tiendanet
+      - tiendanet2
     volumes:
       - ./database/data:/var/lib/postgresql/data:rw
   tienda_backend:
@@ -23,7 +23,7 @@ services:
     ports:
       - "9030:9030"
     networks:
-      - tiendanet
+      - tiendanet2
   tienda_frontend:
     build: 
       context: ./frontend
@@ -34,8 +34,8 @@ services:
     ports:
       - "80:80"  
     networks:
-      - tiendanet
+      - tiendanet2
 
 networks:
-  tiendanet:
-    driver:bridge
+  tiendanet2:
+    driver: bridge
