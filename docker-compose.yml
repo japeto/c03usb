@@ -1,0 +1,41 @@
+version: '3'
+services:
+  tienda_database:
+    image: postgres:13.0-alpine
+    container_name: database
+    env_file:
+      - ./database/.env
+    expose: 
+      - 5432
+    ports:
+      -"5432:5432"
+    networks:
+      - tiendanet
+    volumes:
+      - ./database/data:/var/lib/postgresql/data:rw
+  tienda_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    expose:
+      - 9030
+    ports:
+      - "9030:9030"
+    networks:
+      - tiendanet
+  tienda_frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    expose:
+      - 80 
+    ports:
+      - "80:80"  
+    networks:
+      - tiendanet
+
+networks:
+  tiendanet:
+    driver:bridge
